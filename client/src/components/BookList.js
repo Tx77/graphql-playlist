@@ -1,34 +1,36 @@
-import React from "react";
-import { gql } from "apollo-boost";
-import { useQuery } from "@apollo/react-hooks";
+import React, { useState } from 'react'
+import { useQuery } from '@apollo/react-hooks'
+import { getBooksQuery } from '../queries/queries'
 
-const getBooksQuery = gql`
-  {
-    books {
-      name
-      id
-    }
-  }
-`;
+//* components
+import BookDetails from './BookDetails'
 
 function BookList(props) {
-  const { loading, data } = useQuery(getBooksQuery);
+  const { loading, data } = useQuery(getBooksQuery)
+  const [selected, setSelected] = useState(null);
 
   function displayBooks() {
     if (loading) {
-      return <div>Loading books...</div>;
+      return <div>Loading books...</div>
     } else {
       return data.books.map(book => {
-        return <li key={book.id}>{book.name}</li>;
-      });
+        return (
+          <li key={book.id} onClick={(e) => { setSelected(book.id) }}>
+            {book.name}
+          </li>
+        )
+      })
     }
   }
 
   return (
     <div>
-      <ul id="book-list">{displayBooks()}</ul>
+      <ul id='book-list'>
+        {displayBooks()}
+      </ul>
+      <BookDetails bookId={selected}/>
     </div>
-  );
+  )
 }
 
-export default BookList;
+export default BookList

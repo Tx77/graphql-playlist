@@ -1,18 +1,13 @@
-import React from "react";
-import { gql } from "apollo-boost";
-import { useQuery } from "@apollo/react-hooks";
-
-const getAuthorsQuery = gql`
-  {
-    authors {
-      name
-      id
-    }
-  }
-`;
+import React, { useState } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+import { getAuthorsQuery, addBookMutation, getBooksQuery } from "../queries/queries";
 
 function AddBook(props) {
   const { loading, data } = useQuery(getAuthorsQuery);
+  const [addBook] = useMutation(addBookMutation);
+  const [name, setName] = useState('');
+  const [genre, setGenre] = useState('');
+  const [authorId, setAuthorId] = useState('');
 
   function displayAuthors() {
     if (loading) {
@@ -28,19 +23,24 @@ function AddBook(props) {
     }
   }
 
+  function submitForm(e) {
+    e.preventDefault();
+    addBook({ variables: { name, genre, authorId }, refetchQueries: [{ query: getBooksQuery }] });
+  }
+
   return (
-    <form id="add-book">
+    <form id="add-book" onSubmit={submitForm}>
       <div className="field">
         <label>Book name:</label>
-        <input type="text" />
+        <input type="text" onChange={(e) => { setName(e.target.value) }} />
       </div>
       <div className="field">
         <label>Genre:</label>
-        <input type="text" />
+        <input type="text" onChange={(e) => { setGenre(e.target.value) }} />
       </div>
       <div className="field">
         <label>Author:</label>
-        <select>
+        <select onChange={(e) => { setAuthorId(e.target.value) }}>
           <option>Select author</option>
           {displayAuthors()}
         </select>
